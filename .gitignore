@@ -1,5 +1,4 @@
 tfjs_env/
-*.bin
 .vscode/
 tfjs_env/
 *.h5
