@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorFlow.js & BlazePose</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+</head>
+<body>
+  <h1>TensorFlow.js & BlazePose Integration</h1>
+  <section>
+    <h2>Posture Classifier</h2>
+    <!-- Video hidden since we only need it for capturing frames -->
+    <video id="video" autoplay muted playsinline style="display: none;"></video>
+    <!-- Canvas will display the video feed and overlays -->
+    <canvas id="output"></canvas>
+  </section>
+
+  <script type="module" src="js/blaze.js" defer></script>
+</body>
+</html>

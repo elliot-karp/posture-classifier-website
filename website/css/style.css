@@ -1,0 +1,33 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  section {
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+  }
+  
+  canvas {
+    display: block;
+    margin: 10px auto;
+    max-width: 640px; /* Limit the canvas width */
+    max-height: 360px; /* Limit the canvas height */
+    border: 20px solid #cccccc; /* Default border color (neutral) */
+    border-radius: 8px; /* Optional: Make the border rounded */
+    width: 100%; /* Ensure it resizes responsively */
+    height: auto;
+    transition: border-color 0.3s ease; /* Smooth transition for border color */
+  }
