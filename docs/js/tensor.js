@@ -5,7 +5,7 @@ async function loadModel() {
   try {
     console.log("Loading TensorFlow.js model...");
     const model = await tf.loadLayersModel("tfjs_model/model.json");
-    console.log("Model loaded successfully:", model);
+    console.log("Model loaded successfully :)", model);
     return model;
   } catch (error) {
     console.error("Error loading the model:", error);
