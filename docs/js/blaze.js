@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const neckAngle = calculateThreePointAngle(leftShoulder, nose, rightShoulder);
 
     const rawInput = [shoulderTilt, forwardSlouchAngle, neckAngle];
-    //console.log("Raw Input:", rawInput);
+    console.log("Raw Input:", rawInput);
 
     if (!scalingParams) {
       console.error("Scaling parameters not loaded yet. Skipping prediction.");
