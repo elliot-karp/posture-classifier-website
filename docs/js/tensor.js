@@ -22,13 +22,13 @@ export async function queryModel(blazeInput) {
 
   try {
     const inputTensor = tf.tensor2d([blazeInput]);
-    //console.log("Input Tensor for Model:", inputTensor.toString());
+    console.log("Input Tensor for Model:", inputTensor.toString());
 
     const output = model.predict(inputTensor);
     const probabilities = output.softmax();
     const predictedClassTensor = probabilities.argMax(1);
     const predictedClass = (await predictedClassTensor.data())[0];
-    //console.log("Predicted Class:", predictedClass);
+    console.log("Predicted Class:", predictedClass);
 
     inputTensor.dispose();
     output.dispose();
