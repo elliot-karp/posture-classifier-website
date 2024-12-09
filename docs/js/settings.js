@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const savedAudioQueueSetting = localStorage.getItem("audioQueueEnabled") === "true";
   const savedModelType = localStorage.getItem("selectedModelType") || "angles_model";
 
-  // Set saved preferences
   audioQueueToggle.checked = savedAudioQueueSetting;
   modelDropdown.value = savedModelType;
 
@@ -38,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const newModelPath = `${baseModelPath}${selectedModelType}`;
     console.log(`Switching model to: ${newModelPath}`);
 
-    // Update the model path globally
     setModelPath(newModelPath);
   });
 });

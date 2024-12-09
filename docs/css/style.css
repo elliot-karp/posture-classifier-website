@@ -23,15 +23,15 @@ body {
   canvas {
     display: block;
     margin: 10px auto;
-    max-width: 640px; /* Limit the canvas width */
-    max-height: 360px; /* Limit the canvas height */
-    border: 20px solid #cccccc; /* Default border color (neutral) */
-    border-radius: 8px; /* Optional: Make the border rounded */
-    width: 100%; /* Ensure it resizes responsively */
+    max-width: 640px;  
+    max-height: 360px; 
+    border: 20px solid #cccccc;  
+    border-radius: 8px;  
+    width: 100%;  
     height: auto;
-    transition: border-color 0.3s ease; /* Smooth transition for border color */
+    transition: border-color 0.3s ease;  
   }
-  /* CSS for Settings Popup */
+   
   .hidden {
     display: none !important;
   }
@@ -68,10 +68,10 @@ button:hover {
   background-color: #eee;
 }
 #open-settings {
-  position: fixed; /* Fix the button to the top of the screen */
-  top: 10px; /* Distance from the top */
-  right: 10px; /* Distance from the right */
-  z-index: 1000; /* Ensure it stays above other elements */
+  position: fixed;  
+  top: 10px;  
+  right: 10px;  
+  z-index: 1000;  
   padding: 10px 20px;
   font-size: 16px;
   background-color: #007bff;

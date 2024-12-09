@@ -4,10 +4,10 @@ import { useAngles } from "./settings.js"
 let scalingParams = null;
 const audio = new Audio("./assets/fix_posture.mp3");
 const BAD_POSTURE_THRESHOLD = 10000;
-let badPostureStart = null; // Tracks the start time of bad posture
+let badPostureStart = null;  
 
 
-// Load scaling parameters
+ 
 fetch(`${selectedModelPath}/scaling_params.json`)
   .then((response) => response.json())
   .then((data) => {
@@ -37,8 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   pose.onResults((results) => {
     if (!results.poseLandmarks) return;
 
-    // Match canvas size to video feed
-    canvasElement.width = videoElement.videoWidth;
+     canvasElement.width = videoElement.videoWidth;
     canvasElement.height = videoElement.videoHeight;
 
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -46,14 +45,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const landmarks = results.poseLandmarks;
 
-    // Draw overlays
-    drawLandmark(landmarks[0], "red", canvasCtx); // Nose
+     drawLandmark(landmarks[0], "red", canvasCtx); // Nose
     drawLandmark(landmarks[11], "blue", canvasCtx); // Left Shoulder
     drawLandmark(landmarks[12], "blue", canvasCtx); // Right Shoulder
 
     let rawInput;
     if (useAngles) {
-      // Use angles
+    
       const shoulderTilt = calculateAngle(landmarks[11], landmarks[12]);
       const forwardSlouchAngle = calculateForwardSlouchAngle(
         landmarks[0],
@@ -67,8 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       rawInput = [shoulderTilt, forwardSlouchAngle, neckAngle];
     } else {
-      // Use points in the specified order
-      rawInput = [
+       rawInput = [
         landmarks[0].x, landmarks[0].y, landmarks[0].z, // Nose
         landmarks[1].x, landmarks[1].y, landmarks[1].z, // Left Eye
         landmarks[2].x, landmarks[2].y, landmarks[2].z, // Right Eye
@@ -82,8 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Scale the input using the loaded parameters
-    const scaledInput = rawInput.map((value, index) => {
+     const scaledInput = rawInput.map((value, index) => {
       const mean = scalingParams.means[index];
       const stdDev = scalingParams.std_devs[index];
       return (value - mean) / stdDev;
@@ -96,23 +92,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const isAudioEnabled =
           localStorage.getItem("audioQueueEnabled") === "true";
 
-        // Start tracking bad posture duration
-        if (!badPostureStart) {
+         if (!badPostureStart) {
           badPostureStart = Date.now();
         }
 
-        // Check if bad posture exceeds the threshold
-        const elapsedTime = Date.now() - badPostureStart;
+         const elapsedTime = Date.now() - badPostureStart;
         if (isAudioEnabled && elapsedTime >= BAD_POSTURE_THRESHOLD) {
           audio.play();
           console.log("Bad posture for x seconds");
-          badPostureStart = null; // Reset timer after playing the sound
+          badPostureStart = null;  
         }
       } else if (prediction === 1) {
         canvasElement.style.border = "6px solid green";
 
-        // Reset bad posture tracking if the posture is corrected
-        badPostureStart = null;
+         badPostureStart = null;
       } else {
         console.error("Unexpected prediction value:", prediction);
       }
@@ -123,8 +116,8 @@ document.addEventListener("DOMContentLoaded", () => {
     onFrame: async () => {
       await pose.send({ image: videoElement });
     },
-    width: 640, // Match the canvas width
-    height: 360, // Match the canvas height
+    width: 640,  
+    height: 360,  
   });
 
   camera.start();

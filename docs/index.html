@@ -13,13 +13,11 @@
   <h1>BlazePose and TensorFlow</h1>
   <section>
     <h2>Posture Classification</h2>
-    <!-- Video hidden since we only need it for capturing frames -->
+
     <video id="video" autoplay muted playsinline style="display: none;"></video>
-    <!-- Canvas will display the video feed and overlays -->
     <canvas id="output"></canvas>
   </section>
 
-<!-- Settings Popup -->
 <div id="settings-popup" class="settings-popup hidden">
   <div class="settings-content">
       <h2>Settings</h2>
@@ -37,11 +35,8 @@
   </div>
 </div>
 
-<!-- Button to Open Settings -->
 <button id="open-settings">Settings</button>
 
-  <!-- Scripts -->
-\\
 <script type="module" src="js/tensor.js" defer></script>
 <script type="module" src="js/settings.js" defer></script>
 <script type="module" src="js/blaze.js" defer></script>
