@@ -1,13 +1,17 @@
-import { queryModel } from "./tensor.js";
+import { queryModel, selectedModelPath } from "./tensor.js";
+import { useAngles } from "./settings.js"
 
 let scalingParams = null;
+const audio = new Audio("./assets/fix_posture.mp3");
+const BAD_POSTURE_THRESHOLD = 10000;
+let badPostureStart = null; // Tracks the start time of bad posture
+
 
 // Load scaling parameters
-fetch("scaling_params.json")
+fetch(`${selectedModelPath}/scaling_params.json`)
   .then((response) => response.json())
   .then((data) => {
     scalingParams = data;
-    //console.log("Scaling parameters loaded:", scalingParams);
   })
   .catch((error) => {
     console.error("Error loading scaling parameters:", error);
@@ -32,30 +36,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
   pose.onResults((results) => {
     if (!results.poseLandmarks) return;
-    //match canvas size to video feed
+
+    // Match canvas size to video feed
     canvasElement.width = videoElement.videoWidth;
     canvasElement.height = videoElement.videoHeight;
 
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
-    // Draw overlays for nose and shoulders
     const landmarks = results.poseLandmarks;
-    const nose = landmarks[0];
-    const leftShoulder = landmarks[11];
-    const rightShoulder = landmarks[12];
 
-    drawLandmark(nose, "red", canvasCtx);
-    drawLandmark(leftShoulder, "blue", canvasCtx);
-    drawLandmark(rightShoulder, "blue", canvasCtx);
+    // Draw overlays
+    drawLandmark(landmarks[0], "red", canvasCtx); // Nose
+    drawLandmark(landmarks[11], "blue", canvasCtx); // Left Shoulder
+    drawLandmark(landmarks[12], "blue", canvasCtx); // Right Shoulder
 
-    // Calculate angles
-    const shoulderTilt = calculateAngle(leftShoulder, rightShoulder);
-    const forwardSlouchAngle = calculateForwardSlouchAngle(nose, leftShoulder, rightShoulder);
-    const neckAngle = calculateThreePointAngle(leftShoulder, nose, rightShoulder);
-
-    const rawInput = [shoulderTilt, forwardSlouchAngle, neckAngle];
-    console.log("Raw Input:", rawInput);
+    let rawInput;
+    if (useAngles) {
+      // Use angles
+      const shoulderTilt = calculateAngle(landmarks[11], landmarks[12]);
+      const forwardSlouchAngle = calculateForwardSlouchAngle(
+        landmarks[0],
+        landmarks[11],
+        landmarks[12]
+      );
+      const neckAngle = calculateThreePointAngle(
+        landmarks[11],
+        landmarks[0],
+        landmarks[12]
+      );
+      rawInput = [shoulderTilt, forwardSlouchAngle, neckAngle];
+    } else {
+      // Use points in the specified order
+      rawInput = [
+        landmarks[0].x, landmarks[0].y, landmarks[0].z, // Nose
+        landmarks[1].x, landmarks[1].y, landmarks[1].z, // Left Eye
+        landmarks[2].x, landmarks[2].y, landmarks[2].z, // Right Eye
+        landmarks[11].x, landmarks[11].y, landmarks[11].z, // Left Shoulder
+        landmarks[12].x, landmarks[12].y, landmarks[12].z // Right Shoulder
+      ];
+    }
 
     if (!scalingParams) {
       console.error("Scaling parameters not loaded yet. Skipping prediction.");
@@ -69,23 +89,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return (value - mean) / stdDev;
     });
 
-    //console.log("Scaled Input:", scaledInput);
-
-    // Pass the scaled input to the TensorFlow.js model
     queryModel(scaledInput).then((prediction) => {
-      // Change the canvas border color based on prediction
       if (prediction === 0) {
-        canvasElement.style.border = "5px solid red";
+        canvasElement.style.border = "6px solid red";
+
+        const isAudioEnabled =
+          localStorage.getItem("audioQueueEnabled") === "true";
+
+        // Start tracking bad posture duration
+        if (!badPostureStart) {
+          badPostureStart = Date.now();
+        }
+
+        // Check if bad posture exceeds the threshold
+        const elapsedTime = Date.now() - badPostureStart;
+        if (isAudioEnabled && elapsedTime >= BAD_POSTURE_THRESHOLD) {
+          audio.play();
+          console.log("Bad posture for x seconds");
+          badPostureStart = null; // Reset timer after playing the sound
+        }
       } else if (prediction === 1) {
-        canvasElement.style.border = "5px solid green";
+        canvasElement.style.border = "6px solid green";
+
+        // Reset bad posture tracking if the posture is corrected
+        badPostureStart = null;
+      } else {
+        console.error("Unexpected prediction value:", prediction);
       }
-      else {
-        console.error("Unexpected prediction value:", prediction); 
-
-      }
-
-
-
     });
   });
 
@@ -149,15 +179,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const verticalVector = { z: 0, y: 1 };
 
     const dotProduct =
-      noseToMidpointVector.z * verticalVector.z + noseToMidpointVector.y * verticalVector.y;
+      noseToMidpointVector.z * verticalVector.z +
+      noseToMidpointVector.y * verticalVector.y;
     const magnitudeNose = Math.sqrt(
       noseToMidpointVector.z ** 2 + noseToMidpointVector.y ** 2
     );
-    const magnitudeVertical = Math.sqrt(verticalVector.z ** 2 + verticalVector.y ** 2);
+    const magnitudeVertical = Math.sqrt(
+      verticalVector.z ** 2 + verticalVector.y ** 2
+    );
 
     if (magnitudeNose === 0 || magnitudeVertical === 0) return 0;
 
-    const angleRadians = Math.acos(dotProduct / (magnitudeNose * magnitudeVertical));
+    const angleRadians = Math.acos(
+      dotProduct / (magnitudeNose * magnitudeVertical)
+    );
     return (angleRadians * 180) / Math.PI;
   }
 });
