@@ -8,9 +8,13 @@ import json  # Added import for JSON handling
 from tensorflow.keras.models import load_model
 
 # Constants
-GOOD_DIR = "angles/good_posture"
-BAD_DIR = "angles/bad_posture"
-MODEL_PATH = "posture_model.h5"
+GOOD_DIR = "/Users/doot/Desktop/tensorflow_browser/models/data/angles/good_posture"
+BAD_DIR = "/Users/doot/Desktop/tensorflow_browser/models/data/angles/bad_posture"
+
+
+
+
+MODEL_PATH = "angles_model.h5"
 NUM_EPOCHS = 20
 BATCH_SIZE = 32
 
@@ -54,7 +58,7 @@ if __name__ == "__main__":
         "std_devs": scaler.scale_.tolist()
     }
 
-    with open("scaling_params.json", "w") as f:
+    with open("/Users/doot/Desktop/tensorflow_browser/docs/assets/models/angles_model/scaling_params.json", "w") as f:
         json.dump(scaling_params, f)
 
     print("Scaling parameters saved to scaling_params.json")
@@ -88,3 +92,8 @@ if __name__ == "__main__":
     loaded_model = load_model(MODEL_PATH)
     print("Model loaded from posture_model.h5")
     print(loaded_model.summary())
+    # run this to convert      :
+    #  
+    #tensorflowjs_converter --input_format=keras angles_model.h5 /Users/doot/Desktop/tensorflow_browser/docs/assets/models/angles_model/
+
+    
