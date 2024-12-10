@@ -13,32 +13,37 @@
   <h1>BlazePose and TensorFlow</h1>
   <section>
     <h2>Posture Classification</h2>
-
     <video id="video" autoplay muted playsinline style="display: none;"></video>
     <canvas id="output"></canvas>
+    <video id="pip-video" autoplay muted playsinline style="display: none;"></video>
   </section>
 
-<div id="settings-popup" class="settings-popup hidden">
-  <div class="settings-content">
-      <h2>Settings</h2>
-      <label>
-          <input type="checkbox" id="audio-queue-toggle"> Enable Audio Queue
-      </label>
-      <br>
-      <label for="model-dropdown">Select Model:</label>
-      <select id="model-dropdown">
-          <option value="angles_model">Neural Network on Angles</option>
-          <option value="points_model">Neural Network on Spatial Points</option>
-      </select>
-      <br>
-      <button id="close-settings">Close</button>
+
+
+  <div id="settings-popup" class="settings-popup hidden">
+    <div class="settings-content">
+        <h2>Settings</h2>
+        <label>
+            <input type="checkbox" id="audio-queue-toggle"> Enable Audio Queue
+            <br>
+            <label for="alert-time">Alert Time Interval (seconds):</label>
+            <input type="number" id="alert-time" min="1" step="1" value="3">
+        </label>
+        <br>
+        <label for="model-dropdown">Select Model:</label>
+        <select id="model-dropdown">
+            <option value="angles_model">Neural Network on Angles</option>
+            <option value="points_model">Neural Network on Spatial Points</option>
+        </select>
+        <br>
+        <button id="close-settings">Close</button>
+    </div>
   </div>
-</div>
 
-<button id="open-settings">Settings</button>
+  <button id="open-settings">Settings</button>
 
-<script type="module" src="js/tensor.js" defer></script>
-<script type="module" src="js/settings.js" defer></script>
-<script type="module" src="js/blaze.js" defer></script>
+  <script type="module" src="js/tensor.js" defer></script>
+  <script type="module" src="js/settings.js" defer></script>
+  <script type="module" src="js/blaze.js" defer></script>
 </body>
 </html>
