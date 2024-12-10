@@ -1,10 +1,12 @@
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import precision_score, recall_score, f1_score
 import numpy as np
 import pandas as pd
 import os
-import json  
+import json
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
 
 
@@ -24,7 +26,6 @@ def load_points_data(good_dir, bad_dir, feature_columns):
     X_list = []
     y_list = []
 
-
     for gf in good_files:
         df = pd.read_csv(gf, header=None, skiprows=1)
         features = df.iloc[:, feature_columns].values
@@ -32,7 +33,6 @@ def load_points_data(good_dir, bad_dir, feature_columns):
         X_list.append(features)
         y_list.append(labels)
 
-  
     for bf in bad_files:
         df = pd.read_csv(bf, header=None, skiprows=1)
         features = df.iloc[:, feature_columns].values
@@ -40,14 +40,12 @@ def load_points_data(good_dir, bad_dir, feature_columns):
         X_list.append(features)
         y_list.append(labels)
 
-  
     X = np.vstack(X_list)
     y = np.hstack(y_list)
     return X, y
 
 def train_points_model(X, y, model_path, scaling_params_path, input_shape):
     """Train and save the points model."""
-
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
 
@@ -74,7 +72,12 @@ def train_points_model(X, y, model_path, scaling_params_path, input_shape):
 
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=NUM_EPOCHS, batch_size=BATCH_SIZE)
+    history = model.fit(
+        X_train, y_train,
+        validation_data=(X_val, y_val),
+        epochs=NUM_EPOCHS,
+        batch_size=BATCH_SIZE
+    )
 
     model.save(model_path)
     print(f"Model saved to {model_path}")
@@ -82,6 +85,17 @@ def train_points_model(X, y, model_path, scaling_params_path, input_shape):
     print(f"Evaluating {model_path} on the test set...")
     loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
     print(f"Test Accuracy: {accuracy:.4f}")
+
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Training and Validation Accuracy Over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
     return model, accuracy, (X_test, y_test)
 
@@ -98,13 +112,23 @@ def evaluate_model(model, X_test, y_test):
     print("Confusion Matrix:")
     print(confusion_matrix)
 
+  
+    precision = precision_score(y_test, y_pred_classes, average='binary')
+    recall = recall_score(y_test, y_pred_classes, average='binary')
+    f1 = f1_score(y_test, y_pred_classes, average='binary')
+
+    print("Metrics for Points Model:")
+    print(f"  Precision: {precision:.4f}")
+    print(f"  Recall:    {recall:.4f}")
+    print(f"  F1 Score:  {f1:.4f}")
+    print("\n")
+
 if __name__ == "__main__":
     print("Training Points Model...")
 
     feature_columns = list(range(1, 16))  
     X_points, y_points = load_points_data(GOOD_DIR_POINTS, BAD_DIR_POINTS, feature_columns)
 
-   
     model, test_accuracy, test_data = train_points_model(
         X_points, y_points, MODEL_PATH, SCALING_PARAMS_PATH, input_shape=(15,)
     )
@@ -113,5 +137,5 @@ if __name__ == "__main__":
     evaluate_model(model, X_test, y_test)
 
     print("Converting model to TensorFlow.js format...")
-    os.system(f"tensorflowjs_converter --input_format=keras {MODEL_PATH} {MODEL_SAVE_DIR}")
+    # os.system(f"tensorflowjs_converter --input_format=keras {MODEL_PATH} {MODEL_SAVE_DIR}")
     print("Model converted and saved to TensorFlow.js format.")

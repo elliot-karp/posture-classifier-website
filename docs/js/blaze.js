@@ -46,61 +46,59 @@ fetch(`${selectedModelPath}/scaling_params.json`)
   .catch((error) => console.error("Error loading scaling parameters:", error));
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  const videoElement = document.getElementById("video");
-  const canvasElement = document.getElementById("output");
-  const canvasCtx = canvasElement.getContext("2d");
-
-  const hiddenVideoElement = document.createElement("video"); 
-  hiddenVideoElement.style.display = "none";
-  document.body.appendChild(hiddenVideoElement);
-
-  const pose = new Pose({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-  });
-
-  pose.setOptions({
-    modelComplexity: 1,
-    smoothLandmarks: true,
-    enableSegmentation: false,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5,
-  });
-
-  pose.onResults((results) => {
-    processPoseResults(results, canvasElement, canvasCtx);
-  });
-
-  const camera = new Camera(videoElement, {
-    onFrame: async () => await pose.send({ image: videoElement }),
-    width: 640,
-    height: 360,
-  });
-
-  camera.start();
-
-
-  const canvasStream = canvasElement.captureStream();
-  hiddenVideoElement.srcObject = canvasStream;
-
-
-  const pipButton = document.createElement("button");
-  pipButton.textContent = "Enable PiP";
-  document.body.appendChild(pipButton);
-
-  pipButton.addEventListener("click", async () => {
-    try {
-      if (document.pictureInPictureElement) {
-        await document.exitPictureInPicture(); 
-      } else {
-        await hiddenVideoElement.play(); 
-        await hiddenVideoElement.requestPictureInPicture(); 
+  document.addEventListener("DOMContentLoaded", () => {
+    const videoElement = document.getElementById("video");
+    const canvasElement = document.getElementById("output");
+    const canvasCtx = canvasElement.getContext("2d");
+  
+    // Use the existing hidden video element from the HTML
+    const hiddenVideoElement = document.getElementById("pip-video");
+  
+    // Set up the canvas stream for PiP
+    const canvasStream = canvasElement.captureStream();
+    hiddenVideoElement.srcObject = canvasStream;
+  
+    // Use the existing button from HTML
+    const pipButton = document.getElementById("pip-button");
+  
+    // Add event listener for PiP button
+    pipButton.addEventListener("click", async () => {
+      try {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else {
+          await hiddenVideoElement.play();
+          await hiddenVideoElement.requestPictureInPicture();
+        }
+      } catch (error) {
+        console.error("Error enabling PiP:", error);
       }
-    } catch (error) {
-      console.error("Error enabling PiP:", error);
-    }
+    });
+  
+    const pose = new Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+    });
+  
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+  
+    pose.onResults((results) => {
+      processPoseResults(results, canvasElement, canvasCtx);
+    });
+  
+    const camera = new Camera(videoElement, {
+      onFrame: async () => await pose.send({ image: videoElement }),
+      width: 640,
+      height: 360,
+    });
+  
+    camera.start();
   });
-});
 
 
 let lastPrediction = 0; 
