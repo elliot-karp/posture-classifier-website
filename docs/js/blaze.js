@@ -16,6 +16,18 @@ postureWorker.postMessage({
   data: { isAudioEnabled, BAD_POSTURE_THRESHOLD },
 });
 
+async function requestCameraAccess() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const videoElement = document.getElementById("video");
+    videoElement.srcObject = stream;
+    videoElement.play();
+    console.log("Camera access granted!");
+  } catch (error) {
+    console.error("Camera access denied or error occurred:", error);
+    alert("Camera access is required for this application to work. Please allow access.");
+  }
+}
 
 document.addEventListener("settingsUpdated", () => {
   isAudioEnabled = localStorage.getItem("audioQueueEnabled") === "true";
@@ -47,6 +59,7 @@ fetch(`${selectedModelPath}/scaling_params.json`)
 
 
   document.addEventListener("DOMContentLoaded", () => {
+    requestCameraAccess();
     const videoElement = document.getElementById("video");
     const canvasElement = document.getElementById("output");
     const canvasCtx = canvasElement.getContext("2d");
